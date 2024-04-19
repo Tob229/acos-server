@@ -19,8 +19,10 @@ var archiver = require('archiver');
 var crypto = require('crypto');
 var _ = require('lodash');
 var config = require('./config');
-
-
+//calebe1
+const promBundle = require('express-prom-bundle');  
+const metricsMiddleware = promBundle({ includeMethod: true, includePath: true }); 
+//calebe1
 const publicDirectory = path.join(__dirname, 'public');
 
 var app = express();
@@ -42,7 +44,9 @@ nunjucks.configure(path.join(__dirname, 'views'), {
 if (process.env.NODE_ENV !== 'test') {
   app.use(logger('dev'));
 }
-
+//calebe2
+app.use(metricsMiddleware);
+//calebe2
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -338,6 +342,12 @@ app.post(urlPrefix + '/event', function(req, res) {
 
 // ********************************************************************************
 // Front page
+//calebe3
+app.get('/metrics', (req, res) => {
+  res.set('Content-Type', metricsMiddleware.promClient.register.contentType);
+  res.end(metricsMiddleware.promClient.register.metrics());
+});
+//calebe3
 app.get('/', function(req, res) {
 
   var params = { 'protocols': [], 'contentTypes': [], 'contentPackages': [], 'tools': [] };
@@ -701,3 +711,4 @@ app.use(function(err, req, res, next) {
 
 
 module.exports = app;
+
